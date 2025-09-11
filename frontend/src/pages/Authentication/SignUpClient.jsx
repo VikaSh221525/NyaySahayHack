@@ -33,75 +33,75 @@ const SignUpClient = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-2xl">
                 <div className="bg-white rounded-2xl shadow-xl p-8 relative">
-                    <button 
+                    <button
                         onClick={() => navigate(-1)}
                         className="absolute top-6 left-6 text-gray-500 hover:text-gray-700"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </button>
-                    
+
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Client Account</h1>
                         <p className="text-gray-600">Fill in your details to get started</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                        <div>
-                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                                Full Name
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-400" />
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                            <div>
+                                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="fullName"
+                                        type="text"
+                                        autoComplete="name"
+                                        placeholder="John Doe"
+                                        className={`block w-full pl-10 pr-3 py-3 border ${errors.fullName ? 'border-red-300' : 'border-gray-300'
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                        {...register('fullName', {
+                                            required: 'Full name is required'
+                                        })}
+                                    />
                                 </div>
-                                <input
-                                    id="fullName"
-                                    type="text"
-                                    autoComplete="name"
-                                    placeholder="John Doe"
-                                    className={`block w-full pl-10 pr-3 py-3 border ${
-                                        errors.fullName ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
-                                    {...register('fullName', {
-                                        required: 'Full name is required'
-                                    })}
-                                />
+                                {errors.fullName && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
+                                )}
                             </div>
-                            {errors.fullName && (
-                                <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
-                            )}
-                        </div>
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                Email address
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email address
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Mail className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        placeholder="you@example.com"
+                                        className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-300' : 'border-gray-300'
+                                            } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                        {...register('email', {
+                                            required: 'Email is required',
+                                            pattern: {
+                                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                message: 'Invalid email address'
+                                            }
+                                        })}
+                                    />
                                 </div>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    placeholder="you@example.com"
-                                    className={`block w-full pl-10 pr-3 py-3 border ${
-                                        errors.email ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
-                                    {...register('email', {
-                                        required: 'Email is required',
-                                        pattern: {
-                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                            message: 'Invalid email address'
-                                        }
-                                    })}
-                                />
+                                {errors.email && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                                )}
                             </div>
-                            {errors.email && (
-                                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                            )}
                         </div>
 
                         <div>
@@ -117,9 +117,8 @@ const SignUpClient = () => {
                                     type="tel"
                                     autoComplete="tel"
                                     placeholder="+91 98765 43210"
-                                    className={`block w-full pl-10 pr-3 py-3 border ${
-                                        errors.phone ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                    className={`block w-full pl-10 pr-3 py-3 border ${errors.phone ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                     {...register('phone', {
                                         required: 'Phone number is required',
                                         pattern: {
@@ -147,9 +146,8 @@ const SignUpClient = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     autoComplete="new-password"
                                     placeholder="••••••••"
-                                    className={`block w-full pl-10 pr-10 py-3 border ${
-                                        errors.password ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                    className={`block w-full pl-10 pr-10 py-3 border ${errors.password ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                     {...register('password', {
                                         required: 'Password is required',
                                         minLength: {
@@ -192,9 +190,8 @@ const SignUpClient = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     autoComplete="new-password"
                                     placeholder="••••••••"
-                                    className={`block w-full pl-10 pr-10 py-3 border ${
-                                        errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                    className={`block w-full pl-10 pr-10 py-3 border ${errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                     {...register('confirmPassword', {
                                         required: 'Please confirm your password',
                                         validate: value => value === password || 'Passwords do not match'
