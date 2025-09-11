@@ -5,9 +5,9 @@ import { User, Briefcase } from 'lucide-react';
 const UserTypeSelection = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-2xl">
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to <span className='text-indigo-600 text-[1.8rem]'>न्याय</span>Sahay</h1>
+                    <h1 className="text-6xl font-bold text-gray-900 mb-2">Welcome to <span className='text-indigo-600 text-[3.5rem]'>न्याय</span>Sahay</h1>
                     <p className="text-gray-600">Choose your account type to get started</p>
                 </div>
 

@@ -27,7 +27,7 @@ const SignUpClient = () => {
 
     const onSubmit = (data) => {
         console.log('Client signup data:', data);
-        navigate('/login/client');
+        navigate('/onboarding/client');
         reset();
     };
 
