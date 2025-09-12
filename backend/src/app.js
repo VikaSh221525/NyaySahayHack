@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import authClientRoutes from "./routes/authClient.route.js"
 
 const app = express();
 
@@ -11,4 +12,5 @@ app.use(cors({
     credentials: true,  
 }))
 
+app.use('/api/auth', authClientRoutes)
 export default app;
