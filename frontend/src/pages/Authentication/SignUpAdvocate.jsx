@@ -2,18 +2,44 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
+import { authService } from '../../services/authService.js';
 
 const SignUpAdvocate = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, formState: { errors }, setError } = useForm();
     const password = watch('password');
 
-    const onSubmit = (data) => {
-        console.log('Advocate signup data:', data);
-        // Redirect to onboarding after successful signup
-        navigate('/onboarding/advocate');
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        try {
+            // Remove confirmPassword from the data sent to backend
+            const { confirmPassword, ...registrationData } = data;
+            
+            const response = await authService.registerAdvocate(registrationData);
+            console.log('Registration successful:', response);
+            
+            // Store user data in localStorage
+            localStorage.setItem('user', JSON.stringify(response.user));
+            localStorage.setItem('streamToken', response.streamToken);
+            
+            navigate('/onboarding/advocate');
+        } catch (error) {
+            console.error('Registration error:', error);
+            
+            // Handle specific error cases
+            if (error.message.includes('email')) {
+                setError('email', { message: error.message });
+            } else if (error.message.includes('phone')) {
+                setError('phone', { message: error.message });
+            } else {
+                setError('root', { message: error.message || 'Registration failed. Please try again.' });
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -199,12 +225,19 @@ const SignUpAdvocate = () => {
                             . You'll complete your professional profile in the next step.
                         </p>
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div className="pt-4">
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                disabled={isLoading}
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Create Advocate Account
+                                {isLoading ? 'Creating Account...' : 'Create Advocate Account'}
                             </button>
                         </div>
                     </form>

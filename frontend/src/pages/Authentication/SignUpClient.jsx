@@ -2,33 +2,43 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { User, Mail, Lock, Eye, EyeOff, Phone, ArrowLeft } from 'lucide-react';
+import { useRegisterClient } from '../../hooks/useAuthQuery.js';
 
 const SignUpClient = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const registerClientMutation = useRegisterClient();
 
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors },
-        watch
-    } = useForm({
-        defaultValues: {
-            fullName: '',
-            email: '',
-            phone: '',
-            password: '',
-            confirmPassword: ''
-        }
-    });
+        watch,
+        setError
+    } = useForm();
 
     const password = watch('password', '');
 
-    const onSubmit = (data) => {
-        console.log('Client signup data:', data);
-        navigate('/onboarding/client');
-        reset();
+    const onSubmit = async (data) => {
+        try {
+            // Remove confirmPassword and terms from the data sent to backend
+            const { confirmPassword, terms, ...registrationData } = data;
+            
+            await registerClientMutation.mutateAsync(registrationData);
+            reset();
+        } catch (error) {
+            console.error('Registration error:', error);
+            
+            // Handle specific error cases
+            if (error.message?.includes('email')) {
+                setError('email', { message: error.message });
+            } else if (error.message?.includes('phone')) {
+                setError('phone', { message: error.message });
+            } else {
+                setError('root', { message: error.message || 'Registration failed. Please try again.' });
+            }
+        }
     };
 
     return (
@@ -231,12 +241,19 @@ const SignUpClient = () => {
                             <p className="text-sm text-red-600">{errors.terms.message}</p>
                         )}
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                disabled={registerClientMutation.isPending}
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Create Account
+                                {registerClientMutation.isPending ? 'Creating Account...' : 'Create Account'}
                             </button>
                         </div>
                     </form>

@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { authService } from '../../services/authService.js';
 
 const LoginAdvocate = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
+        setError
     } = useForm({
         defaultValues: {
             email: '',
@@ -18,9 +21,30 @@ const LoginAdvocate = () => {
         }
     });
 
-    const onSubmit = (data) => {
-        console.log('Advocate login data:', data);
-        navigate('/advocate/dashboard');
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        try {
+            const response = await authService.loginAdvocate(data);
+            console.log('Login successful:', response);
+            
+            // Store user data
+            localStorage.setItem('user', JSON.stringify(response.user));
+            localStorage.setItem('streamToken', response.streamToken);
+            
+            // Navigate to dashboard or onboarding based on user completion status
+            if (response.user.lawFirm && response.user.barCouncilNumber) {
+                navigate('/advocate/dashboard');
+            } else {
+                navigate('/onboarding/advocate');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('root', { 
+                message: error.message || 'Login failed. Please check your credentials.' 
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -127,12 +151,19 @@ const LoginAdvocate = () => {
                             </div>
                         </div>
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                disabled={isLoading}
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Sign in
+                                {isLoading ? 'Signing in...' : 'Sign in'}
                             </button>
                         </div>
                     </form>

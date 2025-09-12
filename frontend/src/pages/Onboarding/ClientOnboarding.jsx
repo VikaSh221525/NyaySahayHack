@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { User, MapPin, Upload, FileText, ArrowLeft, Mail, Phone } from 'lucide-react';
+import { useClientOnboarding, useAuthStatus } from '../../hooks/useAuthQuery.js';
 
 const indianStates = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -17,20 +18,30 @@ const indianStates = [
 const ClientOnboarding = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    
-    // Get user data from location state (passed from signup)
-    const userData = location.state?.userData || {};
+    const { data: authData } = useAuthStatus();
+    const clientOnboardingMutation = useClientOnboarding();
     
     const [profilePic, setProfilePic] = useState(null);
     const [idProof, setIdProof] = useState(null);
     const [selectedState, setSelectedState] = useState('');
-    const [districts, setDistricts] = useState([]);
+    const [userData, setUserData] = useState({});
     
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    // Get user data from auth query
+    useEffect(() => {
+        if (authData?.user) {
+            setUserData(authData.user);
+            setSelectedState(authData.user.state || '');
+        }
+    }, [authData]);
+    
+    const { register, handleSubmit, formState: { errors }, setError } = useForm({
         defaultValues: {
             fullName: userData.fullName || '',
             email: userData.email || '',
-            phone: userData.phone || ''
+            phone: userData.phone || '',
+            address: userData.address || '',
+            state: userData.state || '',
+            description: userData.description || '',
         }
     });
 
@@ -51,19 +62,34 @@ const ClientOnboarding = () => {
     const handleStateChange = (e) => {
         const state = e.target.value;
         setSelectedState(state);
-        // In a real app, you might fetch districts based on the selected state
-        // For now, we'll use a placeholder
-        setDistricts([`${state} District 1`, `${state} District 2`, `${state} District 3`]);
     };
 
-    const onSubmit = (data) => {
-        console.log('Client onboarding data:', { 
-            ...data,
-            state: selectedState,
-            profilePicture: profilePic,
-            idProof: idProof
-        });
-        navigate('/client/dashboard');
+    const onSubmit = async (data) => {
+        try {
+            // Create FormData for file uploads
+            const formData = new FormData();
+            
+            // Add text fields
+            formData.append('state', selectedState);
+            formData.append('description', data.description || '');
+            formData.append('address', data.address || '');
+            
+            // Add files if selected
+            if (profilePic) {
+                formData.append('profilePicture', profilePic);
+            }
+            if (idProof) {
+                formData.append('idProof', idProof);
+            }
+
+            await clientOnboardingMutation.mutateAsync(formData);
+            
+        } catch (error) {
+            console.error('Onboarding error:', error);
+            setError('root', { 
+                message: error.message || 'Failed to update profile. Please try again.' 
+            });
+        }
     };
 
     return (
@@ -197,37 +223,6 @@ const ClientOnboarding = () => {
                                 </div>
                             </div>
 
-                            {/* District */}
-                            <div>
-                                <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
-                                    District <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <MapPin className="h-5 w-5 text-gray-400" />
-                                    </div>
-                                    <select
-                                        id="district"
-                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-                                        disabled={!selectedState}
-                                        required
-                                        {...register('district', {
-                                            required: 'District is required'
-                                        })}
-                                    >
-                                        <option value="">Select your district</option>
-                                        {districts.map((district, index) => (
-                                            <option key={index} value={district}>
-                                                {district}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                {errors.district && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
-                                )}
-                            </div>
-
                             {/* ID Proof Upload */}
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -281,12 +276,19 @@ const ClientOnboarding = () => {
                             </div>
                         </div>
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div className="flex justify-end pt-4">
                             <button
                                 type="submit"
-                                className="px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                disabled={clientOnboardingMutation.isPending || !selectedState}
+                                className="px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Complete Profile
+                                {clientOnboardingMutation.isPending ? 'Updating Profile...' : 'Complete Profile'}
                             </button>
                         </div>
                     </form>

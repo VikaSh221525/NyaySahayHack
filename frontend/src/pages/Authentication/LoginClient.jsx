@@ -2,25 +2,29 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useLoginClient } from '../../hooks/useAuthQuery.js';
 
 const LoginClient = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const loginClientMutation = useLoginClient();
     
-    const {
-        register,
-        handleSubmit,
-        formState: { errors }
-    } = useForm({
+    const { register, handleSubmit, formState: { errors }, setError } = useForm({
         defaultValues: {
             email: '',
             password: ''
         }
     });
 
-    const onSubmit = (data) => {
-        console.log('Client login data:', data);
-        navigate('/client/dashboard');
+    const onSubmit = async (data) => {
+        try {
+            await loginClientMutation.mutateAsync(data);
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('root', { 
+                message: error.message || 'Login failed. Please check your credentials.' 
+            });
+        }
     };
 
     return (
@@ -116,12 +120,19 @@ const LoginClient = () => {
                             )}
                         </div>
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                disabled={loginClientMutation.isPending}
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Sign in
+                                {loginClientMutation.isPending ? 'Signing in...' : 'Sign in'}
                             </button>
                         </div>
                     </form>

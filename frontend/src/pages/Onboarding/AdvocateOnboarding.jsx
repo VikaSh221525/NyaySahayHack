@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Briefcase, MapPin, Award, Building2, User } from 'lucide-react';
+import { authService } from '../../services/authService.js';
 
 const AdvocateOnboarding = () => {
     const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState(null);
     const [profilePic, setProfilePic] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState({});
     
     const specializations = [
         'Civil Law', 'Criminal Law', 'Corporate Law', 'Family Law', 
@@ -14,7 +17,19 @@ const AdvocateOnboarding = () => {
         'Cyber Law', 'Environmental Law', 'International Law', 'Other'
     ];
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    // Get user data from localStorage
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            setUserData(user);
+        } else {
+            // If no user data, redirect to login
+            navigate('/login/advocate');
+        }
+    }, [navigate]);
+
+    const { register, handleSubmit, formState: { errors }, setError } = useForm();
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -30,13 +45,44 @@ const AdvocateOnboarding = () => {
         }
     };
 
-    const onSubmit = (data) => {
-        console.log('Advocate onboarding data:', { 
-            ...data, 
-            barCertificate: selectedFile,
-            profilePicture: profilePic
-        });
-        navigate('/login/advocate');
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        try {
+            // Create FormData for file uploads
+            const formData = new FormData();
+            
+            // Add text fields
+            Object.keys(data).forEach(key => {
+                if (data[key]) {
+                    formData.append(key, data[key]);
+                }
+            });
+            
+            // Add files if selected
+            if (profilePic) {
+                formData.append('profilePicture', profilePic);
+            }
+            if (selectedFile) {
+                formData.append('barCertificate', selectedFile);
+            }
+
+            const response = await authService.onboardingAdvocate(formData);
+            console.log('Onboarding successful:', response);
+            
+            // Update user data in localStorage
+            localStorage.setItem('user', JSON.stringify(response.user));
+            
+            // Navigate to dashboard
+            navigate('/advocate/dashboard');
+            
+        } catch (error) {
+            console.error('Onboarding error:', error);
+            setError('root', { 
+                message: error.message || 'Failed to update profile. Please try again.' 
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -274,6 +320,12 @@ const AdvocateOnboarding = () => {
                             </div>
                         </div>
 
+                        {errors.root && (
+                            <div className="text-sm text-red-600 text-center">
+                                {errors.root.message}
+                            </div>
+                        )}
+
                         <div className="flex justify-between pt-4">
                             <button
                                 type="button"
@@ -284,9 +336,10 @@ const AdvocateOnboarding = () => {
                             </button>
                             <button
                                 type="submit"
-                                className="px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                disabled={isLoading}
+                                className="px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Complete Profile
+                                {isLoading ? 'Updating Profile...' : 'Complete Profile'}
                             </button>
                         </div>
                     </form>

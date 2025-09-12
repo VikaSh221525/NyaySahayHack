@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import MainRoutes from './routes/Mainroutes';
 import Preloader from './components/Preloader';
-import Mainroutes from './routes/Mainroutes';
 
-const App = () => {
+function App() {
   const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
 
@@ -22,9 +22,9 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Mainroutes/>
+      <MainRoutes />
     </div>
   );
-};
+}
 
 export default App;
