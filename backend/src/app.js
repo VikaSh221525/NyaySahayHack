@@ -4,6 +4,7 @@ import cors from "cors";
 import authClientRoutes from "./routes/authClient.route.js"
 import authAdvocateRoutes from "./routes/authAdvocate.route.js"
 import authRoutes from "./routes/auth.route.js"
+import chatRouter from "./routes/chat.route.js"
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use(cors({
 app.use('/api/auth', authClientRoutes)
 app.use('/api/auth', authAdvocateRoutes)
 app.use('/api/auth', authRoutes)
+app.use('/api/chat', chatRouter)
 
 export default app;
