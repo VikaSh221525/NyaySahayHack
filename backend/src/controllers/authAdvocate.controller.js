@@ -1,9 +1,9 @@
-import clientModel from "../models/Client.model.js";
+import advocateModel from "../models/Advocate.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { upsertStreamUser, generateStreamToken } from "../db/stream.db.js";
 
-export async function registerClient(req, res) {
+export async function registerAdvocate(req, res) {
     try {
         const { fullName, email, phone, password } = req.body;
 
@@ -12,14 +12,14 @@ export async function registerClient(req, res) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // Check if user already exists
-        const existingUser = await clientModel.findOne({ 
+        // Check if advocate already exists
+        const existingAdvocate = await advocateModel.findOne({ 
             $or: [{ email }, { phone }] 
         });
 
-        if (existingUser) {
+        if (existingAdvocate) {
             return res.status(400).json({ 
-                message: "User already exists with this email or phone number" 
+                message: "Advocate already exists with this email or phone number" 
             });
         }
 
@@ -27,22 +27,22 @@ export async function registerClient(req, res) {
         const saltRounds = 12;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Create new client
-        const newClient = new clientModel({
+        // Create new advocate
+        const newAdvocate = new advocateModel({
             fullName,
             email,
             phone,
             password: hashedPassword,
-            role: "client"
+            role: "advocate"
         });
 
-        const savedClient = await newClient.save();
+        const savedAdvocate = await newAdvocate.save();
 
         // Create Stream user
         const streamUserData = {
-            id: savedClient._id.toString(),
+            id: savedAdvocate._id.toString(),
             name: fullName,
-            role: "client",
+            role: "advocate",
             email: email
         };
 
@@ -51,16 +51,16 @@ export async function registerClient(req, res) {
         // Generate JWT token
         const token = jwt.sign(
             { 
-                userId: savedClient._id, 
-                email: savedClient.email,
-                role: "client"
+                userId: savedAdvocate._id, 
+                email: savedAdvocate.email,
+                role: "advocate"
             },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
         // Generate Stream token
-        const streamToken = generateStreamToken(savedClient._id);
+        const streamToken = generateStreamToken(savedAdvocate._id);
 
         // Set cookie
         res.cookie("token", token, {
@@ -70,22 +70,22 @@ export async function registerClient(req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        // Return user data (without password)
-        const { password: _, ...clientData } = savedClient.toObject();
+        // Return advocate data (without password)
+        const { password: _, ...advocateData } = savedAdvocate.toObject();
 
         res.status(201).json({
-            message: "Client registered successfully",
-            user: clientData,
+            message: "Advocate registered successfully",
+            user: advocateData,
             streamToken
         });
 
     } catch (error) {
-        console.log("Error in register client", error);
+        console.log("Error in register advocate", error);
         res.status(500).json({ message: "Internal server error" });
     }
-} 
+}
 
-export async function loginClient(req, res) {
+export async function loginAdvocate(req, res) {
     try {
         const { email, password } = req.body;
 
@@ -94,15 +94,15 @@ export async function loginClient(req, res) {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        // Find user by email
-        const client = await clientModel.findOne({ email });
+        // Find advocate by email
+        const advocate = await advocateModel.findOne({ email });
 
-        if (!client) {
+        if (!advocate) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
         // Check password
-        const isPasswordValid = await bcrypt.compare(password, client.password);
+        const isPasswordValid = await bcrypt.compare(password, advocate.password);
 
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid credentials" });
@@ -111,23 +111,24 @@ export async function loginClient(req, res) {
         // Generate JWT token
         const token = jwt.sign(
             { 
-                userId: client._id, 
-                email: client.email,
-                role: "client"
+                userId: advocate._id, 
+                email: advocate.email,
+                role: "advocate"
             },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
         // Generate Stream token
-        const streamToken = generateStreamToken(client._id);
+        const streamToken = generateStreamToken(advocate._id);
 
         // Update Stream user (in case of any changes)
         const streamUserData = {
-            id: client._id.toString(),
-            name: client.fullName,
-            role: "client",
-            email: client.email
+            id: advocate._id.toString(),
+            name: advocate.fullName,
+            role: "advocate",
+            email: advocate.email,
+            image: advocate.profilePicture || undefined
         };
 
         await upsertStreamUser(streamUserData);
@@ -140,46 +141,70 @@ export async function loginClient(req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        // Return user data (without password)
-        const { password: _, ...clientData } = client.toObject();
+        // Return advocate data (without password)
+        const { password: _, ...advocateData } = advocate.toObject();
 
         res.status(200).json({
             message: "Login successful",
-            user: clientData,
+            user: advocateData,
             streamToken
         });
 
     } catch (error) {
-        console.log("Error in login client", error);
+        console.log("Error in login advocate", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-export async function logoutClient(req, res) {
+export async function logoutAdvocate(req, res) {
     try {
         res.clearCookie("token");
         res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
-        console.log("Error in logout client", error);
+        console.log("Error in logout advocate", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-export async function onboardingClient(req, res) {
+export async function onboardingAdvocate(req, res) {
     try {
         const userId = req.user._id;
-        const { state, description, address } = req.body;
+        const { 
+            lawFirm, 
+            barCouncilNumber, 
+            yearsOfPractice, 
+            specialization, 
+            location, 
+            bio 
+        } = req.body;
 
         // Validate required fields
-        if (!state) {
-            return res.status(400).json({ message: "State is required" });
+        if (!lawFirm || !barCouncilNumber || !yearsOfPractice || !specialization || !location) {
+            return res.status(400).json({ 
+                message: "Law firm, bar council number, years of practice, specialization, and location are required" 
+            });
+        }
+
+        // Check if bar council number is already taken by another advocate
+        const existingAdvocate = await advocateModel.findOne({ 
+            barCouncilNumber, 
+            _id: { $ne: userId } 
+        });
+
+        if (existingAdvocate) {
+            return res.status(400).json({ 
+                message: "Bar council number already exists" 
+            });
         }
 
         // Prepare update data
         const updateData = {
-            state,
-            description: description || "",
-            address: address || ""
+            lawFirm,
+            barCouncilNumber,
+            yearsOfPractice: parseInt(yearsOfPractice),
+            specialization,
+            location,
+            bio: bio || ""
         };
 
         // Handle file uploads if present
@@ -191,7 +216,7 @@ export async function onboardingClient(req, res) {
                 try {
                     const profilePicResult = await uploadFile(
                         req.files.profilePicture[0], 
-                        'NyaySahay/profiles'
+                        'NyaySahay/advocates/profiles'
                     );
                     updateData.profilePicture = profilePicResult.url;
                 } catch (uploadError) {
@@ -202,52 +227,52 @@ export async function onboardingClient(req, res) {
                 }
             }
 
-            // Handle ID proof upload
-            if (req.files.idProof && req.files.idProof[0]) {
+            // Handle bar certificate upload
+            if (req.files.barCertificate && req.files.barCertificate[0]) {
                 try {
-                    const idProofResult = await uploadFile(
-                        req.files.idProof[0], 
-                        'NyaySahay/documents'
+                    const barCertResult = await uploadFile(
+                        req.files.barCertificate[0], 
+                        'NyaySahay/advocates/certificates'
                     );
-                    updateData.idProof = idProofResult.url;
+                    updateData.barCertificate = barCertResult.url;
                 } catch (uploadError) {
-                    console.error("ID proof upload error:", uploadError);
+                    console.error("Bar certificate upload error:", uploadError);
                     return res.status(400).json({ 
-                        message: "Failed to upload ID proof" 
+                        message: "Failed to upload bar certificate" 
                     });
                 }
             }
         }
 
-        // Update client profile
-        const updatedClient = await clientModel.findByIdAndUpdate(
+        // Update advocate profile
+        const updatedAdvocate = await advocateModel.findByIdAndUpdate(
             userId,
             updateData,
             { new: true, runValidators: true }
         ).select("-password");
 
-        if (!updatedClient) {
-            return res.status(404).json({ message: "Client not found" });
+        if (!updatedAdvocate) {
+            return res.status(404).json({ message: "Advocate not found" });
         }
 
         // Update Stream user with new profile data
         const streamUserData = {
-            id: updatedClient._id.toString(),
-            name: updatedClient.fullName,
-            role: "client",
-            email: updatedClient.email,
-            image: updatedClient.profilePicture || undefined
+            id: updatedAdvocate._id.toString(),
+            name: updatedAdvocate.fullName,
+            role: "advocate",
+            email: updatedAdvocate.email,
+            image: updatedAdvocate.profilePicture || undefined
         };
 
         await upsertStreamUser(streamUserData);
 
         res.status(200).json({
             message: "Profile updated successfully",
-            user: updatedClient
+            user: updatedAdvocate
         });
 
     } catch (error) {
-        console.log("Error in client onboarding", error);
+        console.log("Error in advocate onboarding", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
