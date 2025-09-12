@@ -32,4 +32,7 @@ export const uploadFiles = upload.fields([
 // Middleware for handling single file
 export const uploadSingle = upload.single('file');
 
+// Middleware for handling multiple files (for incident reports)
+export const uploadMultipleFiles = upload.array('evidenceFiles', 5); // Max 5 files
+
 export default upload;
