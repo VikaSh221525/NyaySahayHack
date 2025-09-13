@@ -7,8 +7,8 @@ import LoginAdvocate from '../pages/Authentication/LoginAdvocate';
 import SignUpAdvocate from '../pages/Authentication/SignUpAdvocate';
 import AdvocateOnboarding from '../pages/Onboarding/AdvocateOnboarding';
 import ClientOnboarding from '../pages/Onboarding/ClientOnboarding';
-import ReportIncident from '../pages/Client/ReportIncident';
-import RecommendedAdvocates from '../pages/Client/RecommendedAdvocates';
+
+import ClientDashboard from '../pages/Client/ClientDashboard';
 import api from '../services/api';
 
 // Protected Route Component
@@ -124,6 +124,51 @@ const MainRoutes = () => {
             />
 
             {/* Protected Dashboard Routes - Require authentication and complete profile */}
+            <Route
+                path="/client/dashboard"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/client/report-incident"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/client/advocates"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/client/incidents"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            
+            {/* Advocate Dashboard */}
+            <Route
+                path="/advocate/dashboard"
+                element={
+                    <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
+                        <div className="p-8 text-center">
+                            <h1 className="text-2xl font-bold">Advocate Dashboard</h1>
+                            <p>Welcome to your legal practice dashboard!</p>
+                        </div>
+                    </ProtectedRoute>
+                }
+            />
             
         </Routes>
     );

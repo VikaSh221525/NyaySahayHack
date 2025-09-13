@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { 
-    AlertTriangle, 
-    Upload, 
-    X, 
-    FileText, 
-    MapPin, 
+import {
+    AlertTriangle,
+    Upload,
+    X,
+    FileText,
+    MapPin,
     Mail,
     Camera,
     Video,
@@ -46,9 +46,9 @@ const ReportIncident = () => {
     const handleFileSelect = (files) => {
         const fileArray = Array.from(files);
         const validFiles = fileArray.filter(file => {
-            const isValidType = file.type.startsWith('image/') || 
-                               file.type.startsWith('video/') || 
-                               file.type === 'application/pdf';
+            const isValidType = file.type.startsWith('image/') ||
+                file.type.startsWith('video/') ||
+                file.type === 'application/pdf';
             const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
             return isValidType && isValidSize;
         });
@@ -76,7 +76,7 @@ const ReportIncident = () => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-        
+
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             handleFileSelect(e.dataTransfer.files);
         }
@@ -95,14 +95,14 @@ const ReportIncident = () => {
     const onSubmit = async (data) => {
         try {
             const formData = new FormData();
-            
+
             // Add text fields
             Object.keys(data).forEach(key => {
                 if (data[key]) {
                     formData.append(key, data[key]);
                 }
             });
-            
+
             // Add files
             selectedFiles.forEach(file => {
                 formData.append('evidenceFiles', file);
@@ -141,9 +141,8 @@ const ReportIncident = () => {
                                     id="title"
                                     type="text"
                                     placeholder="Brief title describing the incident"
-                                    className={`block w-full pl-10 pr-3 py-3 border ${
-                                        errors.title ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                    className={`block w-full pl-10 pr-3 py-3 border ${errors.title ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                     {...register('title', {
                                         required: 'Incident title is required',
                                         minLength: {
@@ -166,9 +165,8 @@ const ReportIncident = () => {
                                 </label>
                                 <select
                                     id="incidentType"
-                                    className={`block w-full px-3 py-3 border ${
-                                        errors.incidentType ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white`}
+                                    className={`block w-full px-3 py-3 border ${errors.incidentType ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white`}
                                     {...register('incidentType', {
                                         required: 'Please select an incident type'
                                     })}
@@ -214,9 +212,8 @@ const ReportIncident = () => {
                                     id="location"
                                     type="text"
                                     placeholder="Where did this incident occur?"
-                                    className={`block w-full pl-10 pr-3 py-3 border ${
-                                        errors.location ? 'border-red-300' : 'border-gray-300'
-                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                    className={`block w-full pl-10 pr-3 py-3 border ${errors.location ? 'border-red-300' : 'border-gray-300'
+                                        } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                     {...register('location', {
                                         required: 'Location is required'
                                     })}
@@ -236,9 +233,8 @@ const ReportIncident = () => {
                                 id="incidentDetails"
                                 rows={6}
                                 placeholder="Provide a detailed description of what happened, when it occurred, who was involved, and any other relevant information..."
-                                className={`block w-full px-3 py-3 border ${
-                                    errors.incidentDetails ? 'border-red-300' : 'border-gray-300'
-                                } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
+                                className={`block w-full px-3 py-3 border ${errors.incidentDetails ? 'border-red-300' : 'border-gray-300'
+                                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
                                 {...register('incidentDetails', {
                                     required: 'Detailed description is required',
                                     minLength: {
@@ -258,11 +254,10 @@ const ReportIncident = () => {
                                 Evidence Files (Optional)
                             </label>
                             <div
-                                className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
-                                    dragActive 
-                                        ? 'border-indigo-400 bg-indigo-50' 
+                                className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${dragActive
+                                        ? 'border-indigo-400 bg-indigo-50'
                                         : 'border-gray-300 hover:border-gray-400'
-                                }`}
+                                    }`}
                                 onDragEnter={handleDrag}
                                 onDragLeave={handleDrag}
                                 onDragOver={handleDrag}
