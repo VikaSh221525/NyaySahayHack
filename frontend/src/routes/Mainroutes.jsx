@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import UserTypeSelection from '../pages/Authentication/UserTypeSelection';
@@ -8,6 +7,8 @@ import LoginAdvocate from '../pages/Authentication/LoginAdvocate';
 import SignUpAdvocate from '../pages/Authentication/SignUpAdvocate';
 import AdvocateOnboarding from '../pages/Onboarding/AdvocateOnboarding';
 import ClientOnboarding from '../pages/Onboarding/ClientOnboarding';
+import ReportIncident from '../pages/Client/ReportIncident';
+import RecommendedAdvocates from '../pages/Client/RecommendedAdvocates';
 import api from '../services/api';
 
 // Protected Route Component
@@ -123,31 +124,7 @@ const MainRoutes = () => {
             />
 
             {/* Protected Dashboard Routes - Require authentication and complete profile */}
-            <Route
-                path="/client/dashboard"
-                element={
-                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
-                        <div className="p-8 text-center">
-                            <h1 className="text-2xl font-bold">Client Dashboard</h1>
-                            <p>Welcome to your dashboard!</p>
-                        </div>
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/advocate/dashboard"
-                element={
-                    <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
-                        <div className="p-8 text-center">
-                            <h1 className="text-2xl font-bold">Advocate Dashboard</h1>
-                            <p>Welcome to your legal practice dashboard!</p>
-                        </div>
-                    </ProtectedRoute>
-                }
-            />
-
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            
         </Routes>
     );
 };
