@@ -1,4 +1,6 @@
-import { ImageKit } from 'imagekit';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const ImageKit = require('imagekit');
 import mongoose from 'mongoose';
 
 const imagekit = new ImageKit({
