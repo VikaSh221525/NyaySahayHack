@@ -30,10 +30,10 @@ export const useMyClients = () => {
 };
 
 // Hook to get consultation requests (for advocates)
-export const useConsultationRequests = () => {
+export const useMyConsultationRequests = () => {
     return useQuery({
-        queryKey: ['consultationRequests'],
-        queryFn: connectionService.getConsultationRequests,
+        queryKey: ['myConsultationRequests'],
+        queryFn: connectionService.getMyConsultationRequests,
         staleTime: 2 * 60 * 1000, // 2 minutes
     });
 };

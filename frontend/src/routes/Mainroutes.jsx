@@ -9,6 +9,9 @@ import AdvocateOnboarding from '../pages/Onboarding/AdvocateOnboarding';
 import ClientOnboarding from '../pages/Onboarding/ClientOnboarding';
 
 import ClientDashboard from '../pages/Client/ClientDashboard';
+import AdvocateDashboard from '../pages/Advocate/AdvocateDashboard';
+import ChatPage from '../common/ChatPage';
+import CallPage from '../common/CallPage';
 import api from '../services/api';
 
 // Protected Route Component
@@ -156,16 +159,55 @@ const MainRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+            <Route
+                path="/client/my-advocates"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
             
-            {/* Advocate Dashboard */}
+            {/* Advocate Dashboard Routes */}
             <Route
                 path="/advocate/dashboard"
                 element={
                     <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
-                        <div className="p-8 text-center">
-                            <h1 className="text-2xl font-bold">Advocate Dashboard</h1>
-                            <p>Welcome to your legal practice dashboard!</p>
-                        </div>
+                        <AdvocateDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/advocate/clients"
+                element={
+                    <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
+                        <AdvocateDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/advocate/consultation-requests"
+                element={
+                    <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
+                        <AdvocateDashboard />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* Chat and Call Routes - Available for both clients and advocates */}
+            <Route
+                path="/chat/:id"
+                element={
+                    <ProtectedRoute requireCompleteProfile={true}>
+                        <ChatPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/call/:id"
+                element={
+                    <ProtectedRoute requireCompleteProfile={true}>
+                        <CallPage />
                     </ProtectedRoute>
                 }
             />

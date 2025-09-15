@@ -3,6 +3,7 @@ import NavClient from '../../components/NavClient';
 import NyaySahayAi from '../../common/NyaySahayAi';
 import ReportIncident from './ReportIncident';
 import RecommendedAdvocates from './RecommendedAdvocates';
+import MyAdvocates from './MyAdvocates';
 
 const ClientDashboard = () => {
     const location = useLocation();
@@ -14,6 +15,8 @@ const ClientDashboard = () => {
                 return <ReportIncident />;
             case '/client/advocates':
                 return <RecommendedAdvocates />;
+            case '/client/my-advocates':
+                return <MyAdvocates />;
             case '/client/dashboard':
             default:
                 return <NyaySahayAi />;

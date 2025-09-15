@@ -64,7 +64,7 @@ export const connectionService = {
     },
 
     // Get incoming consultation requests (for advocates)
-    getConsultationRequests: async () => {
+    getMyConsultationRequests: async () => {
         try {
             const response = await api.get('/connections/consultation-requests');
             return response.data;

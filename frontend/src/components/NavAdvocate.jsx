@@ -1,23 +1,21 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
     Scale, 
     Bot, 
-    AlertTriangle, 
     Users, 
     Bell, 
     ChevronDown, 
     User,
     LogOut,
-    Settings,
-    Shield
+    Shield,
+    Briefcase
 } from 'lucide-react';
 import { useAuthStatus } from '../hooks/useAuthQuery.js';
 import { useLogout } from '../hooks/useAuthQuery.js';
 
-const NavClient = () => {
+const NavAdvocate = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const { data: authData } = useAuthStatus();
     const logoutMutation = useLogout();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -28,33 +26,21 @@ const NavClient = () => {
     const navItems = [
         {
             name: 'JusticeAI',
-            path: '/client/dashboard',
+            path: '/advocate/dashboard',
             icon: Bot,
             description: 'AI Legal Assistant'
         },
         {
-            name: 'Report Incident',
-            path: '/client/report-incident',
-            icon: AlertTriangle,
-            description: 'Report Legal Issues'
-        },
-        {
-            name: 'Find Advocates',
-            path: '/client/advocates',
+            name: 'Your Clients',
+            path: '/advocate/clients',
             icon: Users,
-            description: 'Connect with Lawyers'
-        },
-        {
-            name: 'My Advocates',
-            path: '/client/my-advocates',
-            icon: MessageCircle,
-            description: 'Chat with Connected Lawyers'
+            description: 'Manage Your Clients'
         }
     ];
 
     const isActive = (path) => {
-        if (path === '/client/dashboard') {
-            return location.pathname === '/client/dashboard' || location.pathname === '/client/justice-ai';
+        if (path === '/advocate/dashboard') {
+            return location.pathname === '/advocate/dashboard' || location.pathname === '/advocate/justice-ai';
         }
         return location.pathname === path;
     };
@@ -78,7 +64,7 @@ const NavClient = () => {
                             <span>Secure Legal Platform</span>
                         </div>
                         <div className="hidden md:flex items-center space-x-1">
-                            <span>24/7 Legal Support Available</span>
+                            <span>Professional Legal Services</span>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4 text-xs">
@@ -92,12 +78,15 @@ const NavClient = () => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <Link to="/client/dashboard" className="flex items-center space-x-2">
+                    <Link to="/advocate/dashboard" className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                             <Scale className="h-5 w-5 text-white" />
                         </div>
                         <span className="text-xl font-bold text-gray-900">
                             <span className="text-indigo-600">न्याय</span>Sahay
+                        </span>
+                        <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full font-medium">
+                            Advocate
                         </span>
                     </Link>
 
@@ -134,7 +123,7 @@ const NavClient = () => {
                             >
                                 <Bell className="h-5 w-5" />
                                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    3
+                                    2
                                 </span>
                             </button>
 
@@ -146,12 +135,12 @@ const NavClient = () => {
                                     </div>
                                     <div className="max-h-64 overflow-y-auto">
                                         <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                            <p className="text-sm font-medium text-gray-900">New advocate response</p>
-                                            <p className="text-xs text-gray-500">Your consultation request was accepted</p>
+                                            <p className="text-sm font-medium text-gray-900">New consultation request</p>
+                                            <p className="text-xs text-gray-500">A client wants to connect with you</p>
                                         </div>
                                         <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                            <p className="text-sm font-medium text-gray-900">Incident report update</p>
-                                            <p className="text-xs text-gray-500">Your report INC-123456 is under review</p>
+                                            <p className="text-sm font-medium text-gray-900">Client message</p>
+                                            <p className="text-xs text-gray-500">You have a new message from your client</p>
                                         </div>
                                     </div>
                                 </div>
@@ -177,7 +166,7 @@ const NavClient = () => {
                                 </div>
                                 <div className="hidden md:block text-left">
                                     <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                                    <p className="text-xs text-gray-500">Legal Advisor</p>
+                                    <p className="text-xs text-gray-500">Advocate</p>
                                 </div>
                                 <ChevronDown className="h-4 w-4 text-gray-500" />
                             </button>
@@ -191,7 +180,7 @@ const NavClient = () => {
                                     </div>
                                     
                                     <Link
-                                        to="/client/profile"
+                                        to="/advocate/profile"
                                         className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
                                     >
                                         <User className="h-4 w-4" />
@@ -199,11 +188,11 @@ const NavClient = () => {
                                     </Link>
                                     
                                     <Link
-                                        to="/client/incidents"
+                                        to="/advocate/consultation-requests"
                                         className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
                                     >
-                                        <AlertTriangle className="h-4 w-4" />
-                                        <span>My Incidents</span>
+                                        <Briefcase className="h-4 w-4" />
+                                        <span>Consultation Requests</span>
                                     </Link>
                                     
                                     <button
@@ -260,4 +249,4 @@ const NavClient = () => {
     );
 };
 
-export default NavClient;
+export default NavAdvocate;
