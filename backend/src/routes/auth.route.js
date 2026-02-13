@@ -18,8 +18,8 @@ router.get('/profile-status', protectRoute, (req, res) => {
     let isComplete = false;
     
     if (user.role === 'client') {
-        // Check if client has completed onboarding
-        isComplete = !!(user.state && user.profilePicture);
+        // Check if client has completed onboarding (state is required)
+        isComplete = !!(user.state);
     } else if (user.role === 'advocate') {
         // Check if advocate has completed onboarding
         isComplete = !!(user.lawFirm && user.barCouncilNumber && user.specialization);
