@@ -22,13 +22,16 @@ const MyAdvocates = () => {
     
     const { data: advocates, isLoading } = useMyAdvocates();
 
-    const filteredAdvocates = advocates?.filter(advocate =>
-        advocate.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        advocate.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        advocate.lawFirm.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredAdvocates = advocates?.advocates?.filter(advocate =>
+        advocate.advocate.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        advocate.advocate.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        advocate.advocate.lawFirm.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
-    const AdvocateCard = ({ advocate }) => (
+    const AdvocateCard = ({ advocateData }) => {
+        const advocate = advocateData.advocate;
+        
+        return (
         <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
@@ -94,7 +97,7 @@ const MyAdvocates = () => {
                 </div>
             </div>
         </div>
-    );
+    );};
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -129,8 +132,8 @@ const MyAdvocates = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     </div>
                 ) : filteredAdvocates.length > 0 ? (
-                    filteredAdvocates.map((advocate) => (
-                        <AdvocateCard key={advocate._id} advocate={advocate} />
+                    filteredAdvocates.map((advocateData) => (
+                        <AdvocateCard key={advocateData.requestId} advocateData={advocateData} />
                     ))
                 ) : (
                     <div className="text-center py-12">

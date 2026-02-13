@@ -84,7 +84,7 @@ export const useLoginClient = () => {
         mutationFn: authService.loginClient,
         onSuccess: (data) => {
             // Update the auth cache
-            const profileComplete = !!(data.user.state && data.user.profilePicture);
+            const profileComplete = !!(data.user.state);
             queryClient.setQueryData(['authUser'], {
                 authenticated: true,
                 user: data.user,
@@ -226,6 +226,28 @@ export const useLogout = () => {
             queryClient.clear();
             toast.success('Logged out successfully!');
             navigate('/');
+        }
+    });
+};
+
+// Hook for updating client profile
+export const useUpdateClientProfile = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: authService.updateClientProfile,
+        onSuccess: (data) => {
+            // Update the auth cache
+            queryClient.setQueryData(['authUser'], (oldData) => ({
+                ...oldData,
+                user: data.user
+            }));
+            
+            toast.success('Profile updated successfully!');
+        },
+        onError: (error) => {
+            console.error('Profile update failed:', error);
+            toast.error(error.message || 'Failed to update profile. Please try again.');
         }
     });
 };

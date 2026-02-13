@@ -1,44 +1,34 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
-import { authService } from '../../services/authService.js';
+import { Mail, Lock, User, Phone, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useRegisterAdvocate } from '../../hooks/useAuthQuery.js';
 
 const SignUpAdvocate = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const registerAdvocateMutation = useRegisterAdvocate();
     
     const { register, handleSubmit, watch, formState: { errors }, setError } = useForm();
     const password = watch('password');
 
     const onSubmit = async (data) => {
-        setIsLoading(true);
         try {
             // Remove confirmPassword from the data sent to backend
             const { confirmPassword, ...registrationData } = data;
             
-            const response = await authService.registerAdvocate(registrationData);
-            console.log('Registration successful:', response);
-            
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(response.user));
-            localStorage.setItem('streamToken', response.streamToken);
-            
-            navigate('/onboarding/advocate');
+            await registerAdvocateMutation.mutateAsync(registrationData);
         } catch (error) {
             console.error('Registration error:', error);
             
             // Handle specific error cases
-            if (error.message.includes('email')) {
+            if (error.message?.includes('email')) {
                 setError('email', { message: error.message });
-            } else if (error.message.includes('phone')) {
+            } else if (error.message?.includes('phone')) {
                 setError('phone', { message: error.message });
             } else {
                 setError('root', { message: error.message || 'Registration failed. Please try again.' });
             }
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -46,6 +36,13 @@ const SignUpAdvocate = () => {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <div className="w-full max-w-4xl">
                 <div className="bg-white rounded-2xl shadow-xl p-8 relative">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="absolute top-6 left-6 text-gray-500 hover:text-gray-700"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </button>
+
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">Join as a Legal Professional</h1>
                         <p className="text-gray-600">Create your advocate account to get started</p>
@@ -234,10 +231,10 @@ const SignUpAdvocate = () => {
                         <div className="pt-4">
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={registerAdvocateMutation.isPending}
                                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isLoading ? 'Creating Account...' : 'Create Advocate Account'}
+                                {registerAdvocateMutation.isPending ? 'Creating Account...' : 'Create Advocate Account'}
                             </button>
                         </div>
                     </form>

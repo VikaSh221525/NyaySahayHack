@@ -5,7 +5,6 @@ import {
     Bot, 
     AlertTriangle, 
     Users, 
-    Bell, 
     ChevronDown, 
     User,
     LogOut,
@@ -21,7 +20,6 @@ const NavClient = () => {
     const { data: authData } = useAuthStatus();
     const logoutMutation = useLogout();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
 
     const user = authData?.user;
 
@@ -126,38 +124,6 @@ const NavClient = () => {
 
                     {/* Right Side */}
                     <div className="flex items-center space-x-4">
-                        {/* Notifications */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowNotifications(!showNotifications)}
-                                className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-                            >
-                                <Bell className="h-5 w-5" />
-                                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    3
-                                </span>
-                            </button>
-
-                            {/* Notifications Dropdown */}
-                            {showNotifications && (
-                                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                                    <div className="px-4 py-2 border-b border-gray-100">
-                                        <h3 className="font-semibold text-gray-900">Notifications</h3>
-                                    </div>
-                                    <div className="max-h-64 overflow-y-auto">
-                                        <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                            <p className="text-sm font-medium text-gray-900">New advocate response</p>
-                                            <p className="text-xs text-gray-500">Your consultation request was accepted</p>
-                                        </div>
-                                        <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
-                                            <p className="text-sm font-medium text-gray-900">Incident report update</p>
-                                            <p className="text-xs text-gray-500">Your report INC-123456 is under review</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
                         {/* Profile Menu */}
                         <div className="relative">
                             <button
@@ -177,7 +143,7 @@ const NavClient = () => {
                                 </div>
                                 <div className="hidden md:block text-left">
                                     <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                                    <p className="text-xs text-gray-500">Legal Advisor</p>
+                                    <p className="text-xs text-gray-500">Client</p>
                                 </div>
                                 <ChevronDown className="h-4 w-4 text-gray-500" />
                             </button>
@@ -247,12 +213,11 @@ const NavClient = () => {
             </div>
 
             {/* Click outside to close dropdowns */}
-            {(showProfileMenu || showNotifications) && (
+            {showProfileMenu && (
                 <div 
                     className="fixed inset-0 z-40" 
                     onClick={() => {
                         setShowProfileMenu(false);
-                        setShowNotifications(false);
                     }}
                 />
             )}

@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Briefcase, MapPin, Award, Building2, User } from 'lucide-react';
-import { authService } from '../../services/authService.js';
+import { Upload, Briefcase, MapPin, Award, Building2, User, ArrowLeft, Mail, Phone } from 'lucide-react';
+import { useAdvocateOnboarding, useAuthStatus } from '../../hooks/useAuthQuery.js';
 
 const AdvocateOnboarding = () => {
     const navigate = useNavigate();
+    const { data: authData, isLoading: authLoading } = useAuthStatus();
+    const advocateOnboardingMutation = useAdvocateOnboarding();
+    
     const [selectedFile, setSelectedFile] = useState(null);
     const [profilePic, setProfilePic] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [userData, setUserData] = useState({});
+    
+    // Get user data from auth query or cache
+    const userData = authData?.user || {};
     
     const specializations = [
         'Civil Law', 'Criminal Law', 'Corporate Law', 'Family Law', 
@@ -17,19 +21,34 @@ const AdvocateOnboarding = () => {
         'Cyber Law', 'Environmental Law', 'International Law', 'Other'
     ];
 
-    // Get user data from localStorage
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            setUserData(user);
-        } else {
-            // If no user data, redirect to login
-            navigate('/login/advocate');
+    const { register, handleSubmit, formState: { errors }, setError, setValue } = useForm({
+        defaultValues: {
+            fullName: '',
+            email: '',
+            phone: '',
+            lawFirm: '',
+            barCouncilNumber: '',
+            yearsOfPractice: '',
+            specialization: '',
+            location: '',
+            bio: '',
         }
-    }, [navigate]);
+    });
 
-    const { register, handleSubmit, formState: { errors }, setError } = useForm();
+    // Update form values when userData is available
+    useEffect(() => {
+        if (userData && Object.keys(userData).length > 0) {
+            setValue('fullName', userData.fullName || '');
+            setValue('email', userData.email || '');
+            setValue('phone', userData.phone || '');
+            setValue('lawFirm', userData.lawFirm || '');
+            setValue('barCouncilNumber', userData.barCouncilNumber || '');
+            setValue('yearsOfPractice', userData.yearsOfPractice || '');
+            setValue('specialization', userData.specialization || '');
+            setValue('location', userData.location || '');
+            setValue('bio', userData.bio || '');
+        }
+    }, [userData, setValue]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -46,17 +65,17 @@ const AdvocateOnboarding = () => {
     };
 
     const onSubmit = async (data) => {
-        setIsLoading(true);
         try {
             // Create FormData for file uploads
             const formData = new FormData();
             
             // Add text fields
-            Object.keys(data).forEach(key => {
-                if (data[key]) {
-                    formData.append(key, data[key]);
-                }
-            });
+            formData.append('lawFirm', data.lawFirm);
+            formData.append('barCouncilNumber', data.barCouncilNumber);
+            formData.append('yearsOfPractice', data.yearsOfPractice);
+            formData.append('specialization', data.specialization);
+            formData.append('location', data.location);
+            formData.append('bio', data.bio || '');
             
             // Add files if selected
             if (profilePic) {
@@ -66,29 +85,32 @@ const AdvocateOnboarding = () => {
                 formData.append('barCertificate', selectedFile);
             }
 
-            const response = await authService.onboardingAdvocate(formData);
-            console.log('Onboarding successful:', response);
-            
-            // Update user data in localStorage
-            localStorage.setItem('user', JSON.stringify(response.user));
-            
-            // Navigate to dashboard
-            navigate('/advocate/dashboard');
+            await advocateOnboardingMutation.mutateAsync(formData);
             
         } catch (error) {
             console.error('Onboarding error:', error);
             setError('root', { 
                 message: error.message || 'Failed to update profile. Please try again.' 
             });
-        } finally {
-            setIsLoading(false);
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            {authLoading ? (
+                <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            ) : (
             <div className="w-full max-w-4xl">
                 <div className="bg-white rounded-2xl shadow-xl p-8 relative">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="absolute top-6 left-6 text-gray-500 hover:text-gray-700"
+                    >
+                        <ArrowLeft className="h-6 w-6" />
+                    </button>
+                    
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Advocate Profile</h1>
                         <p className="text-gray-600">Help us know you better to serve you better</p>
@@ -123,8 +145,68 @@ const AdvocateOnboarding = () => {
                                         />
                                     </label>
                                 </div>
-                                <p className="mt-2 text-sm text-gray-500">Click to upload profile picture</p>
+                                <p className="mt-2 text-sm text-gray-500">Click to upload profile picture (optional)</p>
                             </div>
+
+                            {/* Full Name - Read Only */}
+                            <div>
+                                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="fullName"
+                                        type="text"
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-100"
+                                        disabled
+                                        {...register('fullName')}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Email - Read Only */}
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Mail className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-100"
+                                        disabled
+                                        {...register('email')}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Phone - Read Only */}
+                            <div>
+                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Phone
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Phone className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="phone"
+                                        type="tel"
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-gray-100"
+                                        disabled
+                                        {...register('phone')}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Spacer for grid alignment */}
+                            <div></div>
 
                             {/* Law Firm Name */}
                             <div>
@@ -336,15 +418,16 @@ const AdvocateOnboarding = () => {
                             </button>
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={advocateOnboardingMutation.isPending}
                                 className="px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isLoading ? 'Updating Profile...' : 'Complete Profile'}
+                                {advocateOnboardingMutation.isPending ? 'Updating Profile...' : 'Complete Profile'}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+            )}
         </div>
     );
 };

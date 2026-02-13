@@ -9,6 +9,7 @@ import AdvocateOnboarding from '../pages/Onboarding/AdvocateOnboarding';
 import ClientOnboarding from '../pages/Onboarding/ClientOnboarding';
 
 import ClientDashboard from '../pages/Client/ClientDashboard';
+import ClientProfile from '../pages/Client/ClientProfile';
 import AdvocateDashboard from '../pages/Advocate/AdvocateDashboard';
 import ChatPage from '../common/ChatPage';
 import CallPage from '../common/CallPage';
@@ -164,6 +165,14 @@ const MainRoutes = () => {
                 element={
                     <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
                         <ClientDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/client/profile"
+                element={
+                    <ProtectedRoute requiredRole="client" requireCompleteProfile={true}>
+                        <ClientProfile />
                     </ProtectedRoute>
                 }
             />

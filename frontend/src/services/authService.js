@@ -128,4 +128,18 @@ export const authService = {
             throw error.response?.data || { message: 'Failed to get advocate data' };
         }
     },
+
+    // Update client profile
+    updateClientProfile: async (formData) => {
+        try {
+            const response = await api.put('/auth/profile/client', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed to update profile' };
+        }
+    },
 };
