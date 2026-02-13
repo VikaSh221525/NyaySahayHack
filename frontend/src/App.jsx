@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import MainRoutes from './routes/Mainroutes';
 import Preloader from './components/Preloader';
 
 function App() {
-  const [showPreloader, setShowPreloader] = useState(true);
-  const location = useLocation();
+  const [showPreloader, setShowPreloader] = useState(() => {
+    // Check if preloader has been shown in this session
+    const hasShownPreloader = sessionStorage.getItem('preloaderShown');
+    return !hasShownPreloader;
+  });
 
-  // Hide preloader after first load
+  // Hide preloader after first load and mark it as shown
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowPreloader(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (showPreloader) {
+      const timer = setTimeout(() => {
+        setShowPreloader(false);
+        sessionStorage.setItem('preloaderShown', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPreloader]);
 
-  // Show preloader only on initial load and not on route changes
-  if (showPreloader && location.pathname === '/') {
+  // Show preloader only once per session
+  if (showPreloader) {
     return <Preloader />;
   }
 

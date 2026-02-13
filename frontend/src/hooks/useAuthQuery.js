@@ -13,7 +13,9 @@ export const useAuthStatus = () => {
         },
         retry: false,
         staleTime: 5 * 60 * 1000, // 5 minutes
-        cacheTime: 10 * 60 * 1000, // 10 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes (replaces deprecated cacheTime)
+        refetchOnMount: false, // Don't refetch if data exists in cache
+        refetchOnWindowFocus: false, // Don't refetch on window focus
     });
 };
 

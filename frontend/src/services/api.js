@@ -27,9 +27,13 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Only redirect to home if it's a 401 and NOT from auth check endpoints
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      window.location.href = '/';
+      const url = error.config?.url || '';
+      // Don't redirect if it's an auth check or profile status check
+      if (!url.includes('/auth/check') && !url.includes('/auth/profile-status')) {
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

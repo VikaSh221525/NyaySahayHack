@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Preloader = () => {
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate loading time (3 seconds)
     const timer = setTimeout(() => {
       setLoading(false);
-      // Navigate to user type selection after animation completes
-      navigate('/select-user-type');
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, []);
 
   if (!loading) return null;
 

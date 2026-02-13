@@ -18,32 +18,38 @@ const indianStates = [
 const ClientOnboarding = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { data: authData } = useAuthStatus();
+    const { data: authData, isLoading } = useAuthStatus();
     const clientOnboardingMutation = useClientOnboarding();
     
     const [profilePic, setProfilePic] = useState(null);
     const [idProof, setIdProof] = useState(null);
     const [selectedState, setSelectedState] = useState('');
-    const [userData, setUserData] = useState({});
     
-    // Get user data from auth query
-    useEffect(() => {
-        if (authData?.user) {
-            setUserData(authData.user);
-            setSelectedState(authData.user.state || '');
-        }
-    }, [authData]);
+    // Get user data from auth query or cache
+    const userData = authData?.user || {};
     
-    const { register, handleSubmit, formState: { errors }, setError } = useForm({
+    const { register, handleSubmit, formState: { errors }, setError, setValue } = useForm({
         defaultValues: {
-            fullName: userData.fullName || '',
-            email: userData.email || '',
-            phone: userData.phone || '',
-            address: userData.address || '',
-            state: userData.state || '',
-            description: userData.description || '',
+            fullName: '',
+            email: '',
+            phone: '',
+            address: '',
+            state: '',
+            description: '',
         }
     });
+
+    // Update form values when userData is available
+    useEffect(() => {
+        if (userData && Object.keys(userData).length > 0) {
+            setValue('fullName', userData.fullName || '');
+            setValue('email', userData.email || '');
+            setValue('phone', userData.phone || '');
+            setValue('address', userData.address || '');
+            setValue('description', userData.description || '');
+            setSelectedState(userData.state || '');
+        }
+    }, [userData, setValue]);
 
     const handleProfilePicChange = (e) => {
         const file = e.target.files[0];
@@ -94,6 +100,11 @@ const ClientOnboarding = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            {isLoading ? (
+                <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            ) : (
             <div className="w-full max-w-2xl">
                 <div className="bg-white rounded-2xl shadow-xl p-8 relative">
                     <button 
@@ -294,6 +305,7 @@ const ClientOnboarding = () => {
                     </form>
                 </div>
             </div>
+            )}
         </div>
     );
 };

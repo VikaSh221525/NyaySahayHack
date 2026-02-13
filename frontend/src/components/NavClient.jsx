@@ -9,8 +9,8 @@ import {
     ChevronDown, 
     User,
     LogOut,
-    Settings,
-    Shield
+    Shield,
+    MessageCircle
 } from 'lucide-react';
 import { useAuthStatus } from '../hooks/useAuthQuery.js';
 import { useLogout } from '../hooks/useAuthQuery.js';

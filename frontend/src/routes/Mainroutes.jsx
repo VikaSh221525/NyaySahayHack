@@ -24,6 +24,8 @@ const ProtectedRoute = ({ children, requireAuth = true, requiredRole = null, req
         },
         retry: false,
         staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnMount: false, // Don't refetch if data exists in cache
+        refetchOnWindowFocus: false, // Don't refetch on window focus
     });
 
     // Show loading spinner while checking authentication
@@ -68,6 +70,8 @@ const AuthRoute = ({ children }) => {
         },
         retry: false,
         staleTime: 5 * 60 * 1000,
+        refetchOnMount: false, // Don't refetch if data exists in cache
+        refetchOnWindowFocus: false, // Don't refetch on window focus
     });
 
     if (isLoading) {
@@ -98,15 +102,43 @@ const AuthRoute = ({ children }) => {
 const MainRoutes = () => {
     return (
         <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<AuthRoute><UserTypeSelection /></AuthRoute>} />
-            <Route path="/select-user-type" element={<AuthRoute><UserTypeSelection /></AuthRoute>} />
+            {/* Public Routes - Both redirect to user type selection */}
+            <Route path="/" element={<Navigate to="/select-user-type" replace />} />
+            <Route path="/select-user-type" element={<UserTypeSelection />} />
 
             {/* Authentication Routes - Redirect if already authenticated */}
-            <Route path="/login/client" element={<AuthRoute><LoginClient /></AuthRoute>} />
-            <Route path="/signup/client" element={<AuthRoute><SignUpClient /></AuthRoute>} />
-            <Route path="/login/advocate" element={<AuthRoute><LoginAdvocate /></AuthRoute>} />
-            <Route path="/signup/advocate" element={<AuthRoute><SignUpAdvocate /></AuthRoute>} />
+            <Route 
+                path="/login/client" 
+                element={
+                    <AuthRoute>
+                        <LoginClient />
+                    </AuthRoute>
+                } 
+            />
+            <Route 
+                path="/signup/client" 
+                element={
+                    <AuthRoute>
+                        <SignUpClient />
+                    </AuthRoute>
+                } 
+            />
+            <Route 
+                path="/login/advocate" 
+                element={
+                    <AuthRoute>
+                        <LoginAdvocate />
+                    </AuthRoute>
+                } 
+            />
+            <Route 
+                path="/signup/advocate" 
+                element={
+                    <AuthRoute>
+                        <SignUpAdvocate />
+                    </AuthRoute>
+                } 
+            />
 
             {/* Protected Onboarding Routes - Require authentication but not complete profile */}
             <Route
