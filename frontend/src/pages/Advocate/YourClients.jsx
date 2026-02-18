@@ -30,12 +30,12 @@ const YourClients = () => {
     const acceptRequestMutation = useAcceptConsultationRequest();
     const rejectRequestMutation = useRejectConsultationRequest();
 
-    const filteredClients = clients?.filter(client =>
-        client.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredClients = clients?.clients?.filter(clientData =>
+        clientData.client.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        clientData.client.email.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
-    const filteredRequests = requests?.filter(request =>
+    const filteredRequests = requests?.requests?.filter(request =>
         request.client.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.client.email.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
@@ -67,7 +67,10 @@ const YourClients = () => {
         }
     };
 
-    const ClientCard = ({ client, isRequest = false, requestId = null }) => (
+    const ClientCard = ({ clientData, isRequest = false, requestId = null }) => {
+        const client = isRequest ? clientData : clientData.client;
+        
+        return (
         <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
@@ -85,8 +88,11 @@ const YourClients = () => {
                     <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-900">{client.fullName}</h3>
                         <p className="text-sm text-gray-500">{client.email}</p>
-                        {client.phoneNumber && (
-                            <p className="text-sm text-gray-500">{client.phoneNumber}</p>
+                        {client.phone && (
+                            <p className="text-sm text-gray-500">{client.phone}</p>
+                        )}
+                        {client.state && (
+                            <p className="text-sm text-gray-500">{client.state}</p>
                         )}
                         {isRequest ? (
                             <div className="mt-2">
@@ -133,13 +139,13 @@ const YourClients = () => {
                 </div>
             </div>
             
-            {isRequest && (
+            {isRequest && clientData.createdAt && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-500">
                             <span className="flex items-center">
                                 <Calendar className="h-4 w-4 mr-1" />
-                                Requested on {formatDate(client.createdAt)}
+                                Requested on {formatDate(clientData.createdAt)}
                             </span>
                         </div>
                         <div className="flex space-x-2">
@@ -162,7 +168,7 @@ const YourClients = () => {
                 </div>
             )}
         </div>
-    );
+    );};
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -187,9 +193,9 @@ const YourClients = () => {
                             <div className="flex items-center space-x-2">
                                 <Users className="h-4 w-4" />
                                 <span>Active Clients</span>
-                                {clients && (
+                                {clients?.clients && (
                                     <span className="bg-indigo-100 text-indigo-600 py-0.5 px-2 rounded-full text-xs">
-                                        {clients.length}
+                                        {clients.clients.length}
                                     </span>
                                 )}
                             </div>
@@ -205,9 +211,9 @@ const YourClients = () => {
                             <div className="flex items-center space-x-2">
                                 <AlertCircle className="h-4 w-4" />
                                 <span>Consultation Requests</span>
-                                {requests && (
+                                {requests?.requests && (
                                     <span className="bg-yellow-100 text-yellow-600 py-0.5 px-2 rounded-full text-xs">
-                                        {requests.length}
+                                        {requests.requests.length}
                                     </span>
                                 )}
                             </div>
@@ -243,8 +249,8 @@ const YourClients = () => {
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                             </div>
                         ) : filteredClients.length > 0 ? (
-                            filteredClients.map((client) => (
-                                <ClientCard key={client._id} client={client} />
+                            filteredClients.map((clientData) => (
+                                <ClientCard key={clientData.requestId} clientData={clientData} />
                             ))
                         ) : (
                             <div className="text-center py-12">
@@ -268,7 +274,7 @@ const YourClients = () => {
                             filteredRequests.map((request) => (
                                 <ClientCard 
                                     key={request._id} 
-                                    client={request.client} 
+                                    clientData={request} 
                                     isRequest={true} 
                                     requestId={request._id}
                                 />
