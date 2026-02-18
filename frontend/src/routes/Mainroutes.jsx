@@ -11,6 +11,7 @@ import ClientOnboarding from '../pages/Onboarding/ClientOnboarding';
 import ClientDashboard from '../pages/Client/ClientDashboard';
 import ClientProfile from '../pages/Client/ClientProfile';
 import AdvocateDashboard from '../pages/Advocate/AdvocateDashboard';
+import AdvocateProfile from '../pages/Advocate/AdvocateProfile';
 import ChatPage from '../common/ChatPage';
 import CallPage from '../common/CallPage';
 import api from '../services/api';
@@ -215,6 +216,14 @@ const MainRoutes = () => {
                 element={
                     <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
                         <AdvocateDashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/advocate/profile"
+                element={
+                    <ProtectedRoute requiredRole="advocate" requireCompleteProfile={true}>
+                        <AdvocateProfile />
                     </ProtectedRoute>
                 }
             />

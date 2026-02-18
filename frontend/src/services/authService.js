@@ -142,4 +142,18 @@ export const authService = {
             throw error.response?.data || { message: 'Failed to update profile' };
         }
     },
+
+    // Update advocate profile
+    updateAdvocateProfile: async (formData) => {
+        try {
+            const response = await api.put('/auth/profile/advocate', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { message: 'Failed to update profile' };
+        }
+    },
 };

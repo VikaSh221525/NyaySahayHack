@@ -251,3 +251,25 @@ export const useUpdateClientProfile = () => {
         }
     });
 };
+
+// Hook for updating advocate profile
+export const useUpdateAdvocateProfile = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: authService.updateAdvocateProfile,
+        onSuccess: (data) => {
+            // Update the auth cache
+            queryClient.setQueryData(['authUser'], (oldData) => ({
+                ...oldData,
+                user: data.user
+            }));
+            
+            toast.success('Profile updated successfully!');
+        },
+        onError: (error) => {
+            console.error('Profile update failed:', error);
+            toast.error(error.message || 'Failed to update profile. Please try again.');
+        }
+    });
+};
