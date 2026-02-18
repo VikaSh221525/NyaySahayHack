@@ -77,7 +77,7 @@ const NavAdvocate = () => {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link to="/advocate/dashboard" className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <div className="size-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                             <Scale className="h-5 w-5 text-white" />
                         </div>
                         <span className="text-xl font-bold text-gray-900">
