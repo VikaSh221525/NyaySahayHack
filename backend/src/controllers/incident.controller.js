@@ -69,8 +69,11 @@ export async function reportIncident(req, res) {
 
         // Send emails asynchronously
         try {
-            // Send incident report to authorities
-            await sendIncidentReportEmail(savedIncident);
+            // Send incident report to authorities with reporter contact info
+            await sendIncidentReportEmail(savedIncident, {
+                reporterName: user.fullName,
+                reporterPhone: user.phone
+            });
             
             // Send confirmation to reporter
             await sendConfirmationEmail(user.email, savedIncident);

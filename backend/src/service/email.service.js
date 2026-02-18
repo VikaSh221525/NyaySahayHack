@@ -9,7 +9,7 @@ const createTransporter = () => {
     }
 
     // For Gmail, you'll need to use App Password
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER, // Your email
@@ -19,7 +19,7 @@ const createTransporter = () => {
 };
 
 // Send incident report email
-export const sendIncidentReportEmail = async (incidentData) => {
+export const sendIncidentReportEmail = async (incidentData, reporterContact = {}) => {
     try {
         const transporter = createTransporter();
 
@@ -34,7 +34,9 @@ export const sendIncidentReportEmail = async (incidentData) => {
                 type: incidentData.incidentType,
                 urgency: incidentData.urgency,
                 location: incidentData.location,
-                reporter: incidentData.reporterEmail,
+                reporterName: reporterContact.reporterName,
+                reporterEmail: incidentData.reporterEmail,
+                reporterPhone: reporterContact.reporterPhone,
                 description: incidentData.incidentDetails,
                 evidenceFiles: incidentData.evidenceFiles?.length || 0
             });
@@ -54,14 +56,18 @@ export const sendIncidentReportEmail = async (incidentData) => {
                 .high { border-left: 4px solid #f59e0b; }
                 .medium { border-left: 4px solid #3b82f6; }
                 .low { border-left: 4px solid #10b981; }
+                .critical { border-left: 4px solid #dc2626; }
+                .reporter-info { background-color: #dbeafe; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2563eb; }
+                .contact-item { margin: 8px 0; padding: 8px; background-color: white; border-radius: 4px; }
                 .footer { background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; }
                 .evidence-list { margin: 10px 0; }
                 .evidence-item { background-color: #e2e8f0; padding: 8px; margin: 5px 0; border-radius: 4px; }
+                .highlight { font-weight: bold; color: #1e40af; }
             </style>
         </head>
         <body>
             <div class="header">
-                <h1>🚨 NyaySahay - Incident Report</h1>
+                <h1>� NyaySahay - Incident Report</h1>
                 <p>Incident Number: ${incidentData.incidentNumber}</p>
             </div>
             
@@ -70,42 +76,68 @@ export const sendIncidentReportEmail = async (incidentData) => {
                     <h2>📋 Incident Details</h2>
                     <p><strong>Title:</strong> ${incidentData.title}</p>
                     <p><strong>Type:</strong> ${incidentData.incidentType.replace('_', ' ').toUpperCase()}</p>
-                    <p><strong>Urgency:</strong> ${incidentData.urgency.toUpperCase()}</p>
+                    <p><strong>Urgency:</strong> <span class="highlight">${incidentData.urgency.toUpperCase()}</span></p>
                     <p><strong>Location:</strong> ${incidentData.location}</p>
-                    <p><strong>Reporter Email:</strong> ${incidentData.reporterEmail}</p>
-                    <p><strong>Reported At:</strong> ${new Date(incidentData.createdAt).toLocaleString()}</p>
+                    <p><strong>Reported At:</strong> ${new Date(incidentData.createdAt).toLocaleString('en-IN', { 
+                        dateStyle: 'full', 
+                        timeStyle: 'long' 
+                    })}</p>
+                </div>
+
+                <div class="reporter-info">
+                    <h2>👤 Reporter Contact Information</h2>
+                    <p style="margin-bottom: 10px;"><em>Please contact the reporter for verification or additional information:</em></p>
+                    <div class="contact-item">
+                        <strong>📛 Full Name:</strong> ${reporterContact.reporterName || 'Not provided'}
+                    </div>
+                    <div class="contact-item">
+                        <strong>📧 Email:</strong> <a href="mailto:${incidentData.reporterEmail}">${incidentData.reporterEmail}</a>
+                    </div>
+                    <div class="contact-item">
+                        <strong>📱 Phone:</strong> <a href="tel:${reporterContact.reporterPhone}">${reporterContact.reporterPhone || 'Not provided'}</a>
+                    </div>
                 </div>
 
                 <div class="incident-details">
-                    <h3>📝 Description</h3>
-                    <p>${incidentData.incidentDetails}</p>
+                    <h3>📝 Detailed Description</h3>
+                    <p style="white-space: pre-wrap;">${incidentData.incidentDetails}</p>
                 </div>
 
                 ${incidentData.evidenceFiles && incidentData.evidenceFiles.length > 0 ? `
                 <div class="incident-details">
-                    <h3>📎 Evidence Files</h3>
+                    <h3>📎 Evidence Files (${incidentData.evidenceFiles.length})</h3>
                     <div class="evidence-list">
-                        ${incidentData.evidenceFiles.map(file => `
+                        ${incidentData.evidenceFiles.map((file, index) => `
                             <div class="evidence-item">
-                                <strong>${file.type.toUpperCase()}:</strong> 
-                                <a href="${file.url}" target="_blank">${file.filename || 'View Evidence'}</a>
+                                <strong>Evidence ${index + 1} - ${file.type.toUpperCase()}:</strong> 
+                                <a href="${file.url}" target="_blank" style="color: #2563eb;">${file.filename || 'View Evidence'}</a>
                             </div>
                         `).join('')}
                     </div>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                        <em>Click on the links above to view or download the evidence files.</em>
+                    </p>
                 </div>
                 ` : ''}
 
                 <div class="incident-details">
                     <h3>⚠️ Action Required</h3>
                     <p>This incident report has been submitted through the NyaySahay platform and requires immediate attention from the appropriate authorities.</p>
-                    <p>Please investigate this matter and take necessary action as per the law.</p>
+                    <p><strong>Recommended Actions:</strong></p>
+                    <ul>
+                        <li>Verify the incident details by contacting the reporter</li>
+                        <li>Review all evidence files attached</li>
+                        <li>Investigate the matter as per legal procedures</li>
+                        <li>Take necessary action as per the law</li>
+                        <li>Update the case status on the platform</li>
+                    </ul>
                 </div>
             </div>
 
             <div class="footer">
-                <p>This is an automated email from NyaySahay Platform</p>
-                <p>For any queries, please contact: support@nyaysahay.com</p>
-                <p>© 2024 NyaySahay - Justice for All</p>
+                <p><strong>This is an automated email from NyaySahay Platform</strong></p>
+                <p>For technical support or queries about the platform, please contact: support@nyaysahay.com</p>
+                <p>© 2024 NyaySahay - Justice for All | Empowering Citizens, Ensuring Justice</p>
             </div>
         </body>
         </html>
