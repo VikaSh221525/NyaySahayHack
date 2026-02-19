@@ -10,7 +10,11 @@ import { createMemory, queryMemory } from "../service/vector.seervice.js";
 function initSocketServer(httpServer) {
     const io = new Server(httpServer, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: [
+                process.env.FRONTEND_URL,
+                "https://nyay-sahay-hack-sooty.vercel.app",
+                "http://localhost:5173" // Keep for local development
+            ],
             credentials: true
         }
     });
