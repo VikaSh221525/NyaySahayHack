@@ -12,7 +12,10 @@ export const useSocket = () => {
 
         setIsConnecting(true);
         
-        socketRef.current = io('http://localhost:3000', {
+        // Use environment variable for backend URL, remove /api suffix for socket connection
+        const SOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:3000';
+        
+        socketRef.current = io(SOCKET_URL, {
             withCredentials: true,
             transports: ['websocket', 'polling']
         });
