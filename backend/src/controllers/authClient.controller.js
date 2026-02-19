@@ -157,7 +157,11 @@ export async function loginClient(req, res) {
 
 export async function logoutClient(req, res) {
     try {
-        res.clearCookie("token");
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+        });
         res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         console.log("Error in logout client", error);
