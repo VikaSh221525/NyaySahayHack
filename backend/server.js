@@ -21,5 +21,3 @@ httpServer.listen(port, () => {
     console.log(`📡 Socket.IO server initialized`);
     console.log(`⚖️ JusticeAI ready to assist`);
 });
-
-//////
